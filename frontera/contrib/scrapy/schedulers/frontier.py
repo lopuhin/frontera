@@ -2,6 +2,7 @@ from scrapy.core.scheduler import Scheduler
 from scrapy.http import Request
 from logging import getLogger
 
+import six
 from collections import deque
 from time import time
 
@@ -170,7 +171,7 @@ class FronteraScheduler(Scheduler):
             'key_type': 'ip' if downloader.ip_concurrency else 'domain',
             'overused_keys': []
         }
-        for key, slot in downloader.slots.iteritems():
+        for key, slot in six.iteritems(downloader.slots):
             overused_factor = len(slot.active) / float(slot.concurrency)
             if overused_factor > self.frontier.manager.settings.get('OVERUSED_SLOT_FACTOR'):
                 info['overused_keys'].append(key)

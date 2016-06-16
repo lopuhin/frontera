@@ -263,7 +263,8 @@ class HBaseState(States):
         def put(obj):
             if obj.meta['state'] is not None:
                 self._state_cache[obj.meta['fingerprint']] = obj.meta['state']
-        map(put, objs)
+        for o in objs:
+            put(o)
 
     def set_states(self, objs):
         objs = objs if type(objs) in [list, tuple] else [objs]
@@ -271,7 +272,8 @@ class HBaseState(States):
         def get(obj):
             fprint = obj.meta['fingerprint']
             obj.meta['state'] = self._state_cache[fprint] if fprint in self._state_cache else None
-        map(get, objs)
+        for o in objs:
+            get(o)
 
     def flush(self, force_clear):
         if len(self._state_cache) > self._cache_size_limit:

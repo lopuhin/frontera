@@ -86,15 +86,14 @@ class Response(FrontierObject):
 
     """
 
-    def __init__(self, url, status_code=200, headers=None, body='', request=None):
+    def __init__(self, url, status_code=200, headers=None, body=b'', request=None):
         """
         :param string url: URL of this response.
         :param int status_code: the HTTP status of the response. Defaults to 200.
         :param dict headers: dictionary of headers to send.
-        :param str body: the response body.
+        :param bytes body: the response body.
         :param Request request: The Request object that generated this response.
         """
-
         self._url = url
         self._status_code = int(status_code)
         self._headers = headers or {}

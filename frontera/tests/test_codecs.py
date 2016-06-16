@@ -18,11 +18,11 @@ def test_codec(encoder, decoder):
 
     enc = encoder(Request, send_body=True)
     dec = decoder(Request, Response)
-    req = Request(url="http://www.yandex.ru", meta={"test": "shmest"}, headers={'reqhdr': 'value'})
+    req = Request(url="http://www.yandex.ru", meta={"test": "shmest"}, headers={b'reqhdr': b'value'})
     req2 = Request(url="http://www.yandex.ru/search")
     msgs = [
         enc.encode_add_seeds([req]),
-        enc.encode_page_crawled(Response(url="http://www.yandex.ru", body='SOME CONTENT', headers={'hdr': 'value'},
+        enc.encode_page_crawled(Response(url="http://www.yandex.ru", body=b'SOME CONTENT', headers={b'hdr': b'value'},
                                          request=req), [req2]),
         enc.encode_request_error(req, "Host not found"),
         enc.encode_update_score("1be68ff556fd0bbe5802d1a100850da29f7f15b1", 0.51, "http://yandex.ru", True),
@@ -33,43 +33,43 @@ def test_codec(encoder, decoder):
 
     it = iter(msgs)
 
-    o = dec.decode(it.next())
+    o = dec.decode(next(it))
     assert o[0] == 'add_seeds'
     assert type(o[1]) == list
     req_d = o[1][0]
     check_request(req_d, req)
     assert type(req_d) == Request
 
-    o = dec.decode(it.next())
+    o = dec.decode(next(it))
     assert o[0] == 'page_crawled'
     assert type(o[1]) == Response
-    assert o[1].url == req.url and o[1].body == 'SOME CONTENT' and o[1].meta == req.meta
+    assert o[1].url == req.url and o[1].body == b'SOME CONTENT' and o[1].meta == req.meta
 
     assert type(o[2]) == list
     req_d = o[2][0]
     assert type(req_d) == Request
     assert req_d.url == req2.url
 
-    o_type, o_req, o_error = dec.decode(it.next())
+    o_type, o_req, o_error = dec.decode(next(it))
     assert o_type == 'request_error'
     check_request(o_req, req)
     assert o_error == "Host not found"
 
-    o_type, fprint, score, url, schedule = dec.decode(it.next())
+    o_type, fprint, score, url, schedule = dec.decode(next(it))
     assert o_type == 'update_score'
     assert fprint == "1be68ff556fd0bbe5802d1a100850da29f7f15b1"
     assert score == 0.51
     assert url == "http://yandex.ru"
     assert schedule is True
 
-    o_type, job_id = dec.decode(it.next())
+    o_type, job_id = dec.decode(next(it))
     assert o_type == 'new_job_id'
     assert job_id == 1
 
-    o_type, partition_id, offset = dec.decode(it.next())
+    o_type, partition_id, offset = dec.decode(next(it))
     assert o_type == 'offset'
     assert partition_id == 0
     assert offset == 28796
 
-    o = dec.decode_request(it.next())
+    o = dec.decode_request(next(it))
     check_request(o, req)

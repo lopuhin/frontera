@@ -137,7 +137,7 @@ class UpdateScoreProducer(Producer):
             raise TypeError("all produce message payloads must be type bytes")
         counter = self.counters.get(0, 0)
         for msg in messages:
-            self.sender.send_multipart([self.identity, msg, pack(">II", counter, counter)])
+            self.sender.send_multipart([self.b_identity, msg, pack(">II", counter, counter)])
             counter += 1
             if counter == 4294967296:
                 counter = 0

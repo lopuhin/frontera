@@ -140,7 +140,8 @@ class MemoryStates(States):
         pass
 
     def flush(self, force_clear=False):
-        if len(self._cache) > self._cache_size_limit:
+        if self._cache_size_limit is not None and \
+                        len(self._cache) > self._cache_size_limit:
             force_clear = True
         if force_clear:
             self.logger.debug("Cache has %d items, clearing", len(self._cache))

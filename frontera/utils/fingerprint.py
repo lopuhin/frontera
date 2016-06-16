@@ -26,11 +26,11 @@ def hostname_local_fingerprint(key):
     result = urlparse(key)
     if not result.hostname:
         return sha1(key)
-    host_checksum = crc32(result.hostname) if type(result.hostname) is str else \
+    host_checksum = crc32(result.hostname) if type(result.hostname) is bytes else \
         crc32(result.hostname.encode('utf-8', 'ignore'))
     doc_uri_combined = result.path+';'+result.params+result.query+result.fragment
 
-    doc_uri_combined = doc_uri_combined if type(doc_uri_combined) is str else \
+    doc_uri_combined = doc_uri_combined if type(doc_uri_combined) is bytes else \
         doc_uri_combined.encode('utf-8', 'ignore')
     doc_fprint = hashlib.md5(doc_uri_combined).digest()
     fprint = hexlify(pack(">i16s", host_checksum, doc_fprint))

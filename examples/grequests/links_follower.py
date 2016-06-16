@@ -1,9 +1,10 @@
 import re
 from time import time
+import six
 
 from grequests import AsyncRequest, get as grequests_get, map as grequests_map
 
-from urlparse import urljoin
+from six.moves.urllib.parse import urljoin
 
 from frontera.core.models import Request as FrontierRequest
 from frontera.utils.converters import BaseRequestConverter
@@ -58,7 +59,7 @@ class HostnameStatistics(object):
 
     def collect_overused_keys(self, overused):
         ts = time()
-        for key, timestamp in self.stats.iteritems():
+        for key, timestamp in six.iteritems(self.stats):
             if ts - timestamp < 5.0:  # querying each hostname with at least 5 seconds delay
                 overused.append(key)
         return overused

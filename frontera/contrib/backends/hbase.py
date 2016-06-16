@@ -6,6 +6,7 @@ from time import time
 from binascii import hexlify, unhexlify
 from io import BytesIO
 from random import choice
+import six
 
 from happybase import Connection
 from frontera.utils.url import parse_domain_from_url_fast
@@ -39,7 +40,7 @@ def unpack_score(blob):
 def prepare_hbase_object(obj=None, **kwargs):
     if not obj:
         obj = dict()
-    for k, v in kwargs.iteritems():
+    for k, v in six.iteritems(kwargs):
         if k in ['score', 'state']:
             cf = 's'
         elif k == 'content':
@@ -139,7 +140,7 @@ class HBaseQueue(Queue):
 
         table = self.connection.table(self.table_name)
         with table.batch(transaction=True) as b:
-            for rk, tuples in data.iteritems():
+            for rk, tuples in six.iteritems(data):
                 obj = dict()
                 for score, item in tuples:
                     column = 'f:%0.3f_%0.3f' % get_interval(score, 0.001)
@@ -147,7 +148,7 @@ class HBaseQueue(Queue):
 
                 final = dict()
                 packer = Packer()
-                for column, items in obj.iteritems():
+                for column, items in six.iteritems(obj):
                     stream = BytesIO()
                     for item in items:
                         stream.write(packer.pack(item))
@@ -181,12 +182,12 @@ class HBaseQueue(Queue):
             tries += 1
             limit *= 5.5 if tries > 1 else 1.0
             self.logger.debug("Try %d, limit %d, last attempt: requests %d, hosts %d",
-                              tries, limit, count, len(queue.keys()))
+                              tries, limit, count, len(queue))
             meta_map.clear()
             queue.clear()
             count = 0
             for rk, data in table.scan(row_prefix='%d_' % partition_id, limit=int(limit), batch_size=256):
-                for cq, buf in data.iteritems():
+                for cq, buf in six.iteritems(data):
                     stream = BytesIO(buf)
                     unpacker = Unpacker(stream)
                     for item in unpacker:
@@ -204,25 +205,25 @@ class HBaseQueue(Queue):
                 if count > max_n_requests:
                     break
 
-            if min_hosts is not None and len(queue.keys()) < min_hosts:
+            if min_hosts is not None and len(queue) < min_hosts:
                 continue
 
             if count < min_requests:
                 continue
             break
 
-        self.logger.debug("Finished: tries %d, hosts %d, requests %d", tries, len(queue.keys()), count)
+        self.logger.debug("Finished: tries %d, hosts %d, requests %d", tries, len(queue), count)
 
         # For every fingerprint collect it's row keys and return all fingerprints from them
         fprint_map = {}
-        for fprint, meta_list in meta_map.iteritems():
+        for fprint, meta_list in six.iteritems(meta_map):
             for rk, _ in meta_list:
                 fprint_map.setdefault(rk, []).append(fprint)
 
         results = []
         trash_can = set()
 
-        for _, fprints in queue.iteritems():
+        for _, fprints in six.iteritems(queue):
             for fprint in fprints:
                 for rk, _ in meta_map[fprint]:
                     if rk in trash_can:
@@ -345,7 +346,7 @@ class HBaseMetadata(Metadata):
         for link in links:
             links_dict[unhexlify(link.meta['fingerprint'])] = (link, link.url, link.meta['domain'])
         self.batch.put(unhexlify(response.meta['fingerprint']), obj)
-        for link_fingerprint, (link, link_url, link_domain) in links_dict.iteritems():
+        for link_fingerprint, (link, link_url, link_domain) in six.iteritems(links_dict):
             obj = prepare_hbase_object(url=link_url,
                                        created_at=utcnow_timestamp(),
                                        domain_fingerprint=link_domain['fingerprint'])
@@ -362,7 +363,7 @@ class HBaseMetadata(Metadata):
     def update_score(self, batch):
         if not isinstance(batch, dict):
             raise TypeError('batch should be dict with fingerprint as key, and float score as value')
-        for fprint, (score, url, schedule) in batch.iteritems():
+        for fprint, (score, url, schedule) in six.iteritems(batch):
             obj = prepare_hbase_object(score=score)
             rk = unhexlify(fprint)
             self.batch.put(rk, obj)

@@ -1,3 +1,4 @@
+from six.moves import xrange
 from importlib import import_module
 from zlib import crc32
 
@@ -29,7 +30,7 @@ def load_object(path):
 
 
 def get_crc32(name):
-    return crc32(name) if type(name) is str else crc32(name.encode('utf-8', 'ignore'))
+    return crc32(name) if type(name) is bytes else crc32(name.encode('utf-8', 'ignore'))
 
 
 def chunks(l, n):

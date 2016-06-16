@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import six
 from collections import OrderedDict
 
 from frontera import Backend
@@ -67,9 +68,9 @@ class CommonBackend(Backend):
         for link in links:
             to_fetch[link.meta['fingerprint']] = link
             link.meta['depth'] = depth
-        self.states.fetch(to_fetch.keys())
+        self.states.fetch(list(to_fetch))
         self.states.set_states(links)
-        unique_links = to_fetch.values()
+        unique_links = list(six.itervalues(to_fetch))
         self.metadata.page_crawled(response, unique_links)
         self._schedule(unique_links)
         self.states.update_cache(unique_links)

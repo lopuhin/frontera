@@ -5,6 +5,7 @@ from logging.config import fileConfig
 from argparse import ArgumentParser
 from os.path import exists
 from frontera.utils.misc import load_object
+import six
 
 from frontera.core.manager import FrontierManager
 from frontera.logger.handlers import CONSOLE
@@ -117,7 +118,7 @@ class StrategyWorker(object):
         for m in self.consumer.get_messages(count=self.consumer_batch_size, timeout=1.0):
             try:
                 msg = self._decoder.decode(m)
-            except (KeyError, TypeError), e:
+            except (KeyError, TypeError) as e:
                 logger.error("Decoding error: %s", e)
                 continue
             else:
@@ -194,7 +195,7 @@ class StrategyWorker(object):
         reactor.run()
 
     def log_status(self):
-        for k, v in self.stats.iteritems():
+        for k, v in six.iteritems(self.stats):
             logger.info("%s=%s", k, v)
 
     def stop(self):

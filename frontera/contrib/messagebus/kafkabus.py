@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
+import six
 from frontera.core.messagebus import BaseMessageBus, BaseSpiderLogStream, BaseSpiderFeedStream, \
     BaseStreamConsumer, BaseScoringLogStream, BaseStreamProducer
 
@@ -59,7 +60,7 @@ class Consumer(BaseStreamConsumer):
                             "Could not decode {0} message: {1}".format(
                                 self._topic,
                                 offmsg.message.value))
-            except Exception, err:
+            except Exception as err:
                 logger.warning("Error %s" % err)
             finally:
                 break
@@ -116,7 +117,7 @@ class KeyedProducer(BaseStreamProducer):
                 try:
                     self._prod.send_messages(self._topic_done, key, *messages)
                     success = True
-                except MessageSizeTooLargeError, e:
+                except MessageSizeTooLargeError as e:
                     logger.error(str(e))
                     break
                 except BrokerResponseError:
@@ -173,7 +174,7 @@ class SpiderFeedStream(BaseSpiderFeedStream):
     def available_partitions(self):
         partitions = []
         lags = self._offset_fetcher.get()
-        for partition, lag in lags.iteritems():
+        for partition, lag in six.iteritems(lags):
             if lag < self._max_next_requests:
                 partitions.append(partition)
         return partitions

@@ -2,6 +2,7 @@
 import logging
 from datetime import datetime
 from time import time, sleep
+import six
 
 from cachetools import LRUCache
 from frontera.contrib.backends.partitioners import Crc32NamePartitioner
@@ -19,7 +20,7 @@ def retry_and_rollback(func):
         while True:
             try:
                 return func(self, *args, **kwargs)
-            except Exception, exc:
+            except Exception as exc:
                 self.logger.exception(exc)
                 self.session.rollback()
                 sleep(5)
@@ -129,7 +130,7 @@ class States(MemoryStates):
 
     @retry_and_rollback
     def flush(self, force_clear=False):
-        for fingerprint, state_val in self._cache.iteritems():
+        for fingerprint, state_val in six.iteritems(self._cache):
             state = self.model(fingerprint=fingerprint, state=state_val)
             self.session.merge(state)
         self.session.commit()
@@ -176,7 +177,7 @@ class Queue(BaseQueue):
                 results.append(r)
                 self.session.delete(item)
             self.session.commit()
-        except Exception, exc:
+        except Exception as exc:
             self.logger.exception(exc)
             self.session.rollback()
         return results

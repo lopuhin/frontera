@@ -1,9 +1,9 @@
-from six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import \
+    urlparse, urlunparse, ParseResult, quote, unquote, urlencode
 import urllib
 import cgi
 import hashlib
-from six import moves
-from w3lib.util import unicode_to_str
+from w3lib.util import str_to_unicode
 
 
 # Python 2.x urllib.always_safe become private in Python 3.x;
@@ -22,8 +22,9 @@ def parse_url(url, encoding=None):
     """Return urlparsed url from the given argument (which could be an already
     parsed url)
     """
-    return url if isinstance(url, urlparse.ParseResult) else \
-        urlparse.urlparse(unicode_to_str(url, encoding))
+    if isinstance(url, ParseResult):
+        return url
+    return urlparse(str_to_unicode(url, encoding))
 
 
 def parse_domain_from_url(url):
@@ -73,14 +74,14 @@ def safe_url_string(url, encoding='utf8'):
 
     Always returns a str.
     """
-    s = unicode_to_str(url, encoding)
-    return moves.urllib.parse.quote(s, _safe_chars)
+    s = str_to_unicode(url, encoding)
+    return quote(s, _safe_chars)
 
 
 def _unquotepath(path):
     for reserved in ('2f', '2F', '3f', '3F'):
         path = path.replace('%' + reserved, '%25' + reserved.upper())
-    return urllib.unquote(path)
+    return unquote(path)
 
 
 def canonicalize_url(url, keep_blank_values=True, keep_fragments=False):
@@ -103,9 +104,9 @@ def canonicalize_url(url, keep_blank_values=True, keep_fragments=False):
     scheme, netloc, path, params, query, fragment = parse_url(url)
     keyvals = cgi.parse_qsl(query, keep_blank_values)
     keyvals.sort()
-    query = urllib.urlencode(keyvals)
+    query = urlencode(keyvals)
     path = safe_url_string(_unquotepath(path)) or '/'
     fragment = '' if not keep_fragments else fragment
-    return urlparse.urlunparse((scheme, netloc.lower(), path, params, query, fragment))
+    return urlunparse((scheme, netloc.lower(), path, params, query, fragment))
 
 

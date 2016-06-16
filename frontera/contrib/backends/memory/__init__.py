@@ -128,11 +128,13 @@ class MemoryStates(States):
 
     def update_cache(self, objs):
         objs = objs if type(objs) in [list, tuple] else [objs]
-        map(self._put, objs)
+        for o in objs:
+            self._put(o)
 
     def set_states(self, objs):
         objs = objs if type(objs) in [list, tuple] else [objs]
-        map(self._get, objs)
+        for o in objs:
+            self._get(o)
 
     def fetch(self, fingerprints):
         pass

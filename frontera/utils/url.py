@@ -1,4 +1,4 @@
-import urlparse
+from six.moves.urllib.parse import urlparse
 import urllib
 import cgi
 import hashlib

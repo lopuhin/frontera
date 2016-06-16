@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 import time
 from logging import getLogger, StreamHandler
 
@@ -18,7 +18,7 @@ class TestManager(object):
 
     def __init__(self):
         def log(msg):
-            print "Test Manager: ", msg
+            print("Test Manager: ", msg)
 
         self.logger = TestManager.Nothing()
         self.settings = Settings()
@@ -126,7 +126,7 @@ class KafkaBackend(Backend):
                 try:
                     self._prod.send_messages(self._topic_done, key, encoded_message)
                     success = True
-                except MessageSizeTooLargeError, e:
+                except MessageSizeTooLargeError as e:
                     self._manager.logger.backend.error(str(e))
                     self._manager.logger.backend.debug("Message: %s" % encoded_message)
                     break
@@ -182,7 +182,7 @@ class KafkaBackend(Backend):
                             max_n_requests)
                     )
                 break
-            except OffsetOutOfRangeError, err:
+            except OffsetOutOfRangeError as err:
                 self._manager.logger.backend.warning(
                     "%s" % (err))
 
@@ -190,7 +190,7 @@ class KafkaBackend(Backend):
                 self._cons.seek(0, 2)  # moving to the tail of the log
                 continue
 
-            except Exception, err:
+            except Exception as err:
                 self._manager.logger.backend.warning(
                     "Error %s" % (err))
                 break

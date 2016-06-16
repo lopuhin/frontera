@@ -7,7 +7,6 @@
 #
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #
-from scrapy.settings.default_settings import SPIDER_MIDDLEWARES, DOWNLOADER_MIDDLEWARES
 
 BOT_NAME = 'general'
 
@@ -17,17 +16,17 @@ NEWSPIDER_MODULE = 'general.spiders'
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'topic (+http://www.yourdomain.com)'
 
-SPIDER_MIDDLEWARES.update({
+SPIDER_MIDDLEWARES = {
     'frontera.contrib.scrapy.middlewares.schedulers.SchedulerSpiderMiddleware': 1000,
     'scrapy.spidermiddleware.depth.DepthMiddleware': None,
     'scrapy.spidermiddleware.offsite.OffsiteMiddleware': None,
     'scrapy.spidermiddleware.referer.RefererMiddleware': None,
     'scrapy.spidermiddleware.urllength.UrlLengthMiddleware': None
-})
+}
 
-DOWNLOADER_MIDDLEWARES.update({
+DOWNLOADER_MIDDLEWARES = {
     'frontera.contrib.scrapy.middlewares.schedulers.SchedulerDownloaderMiddleware': 1000,
-})
+}
 
 SCHEDULER = 'frontera.contrib.scrapy.schedulers.frontier.FronteraScheduler'
 SPIDER_MIDDLEWARES.update({

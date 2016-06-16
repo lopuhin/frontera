@@ -12,6 +12,7 @@ class GeneralSpider(Spider):
         self.le = LinkExtractor()
 
     def parse(self, response):
+        self.logger.info('Parse {}'.format(response))
         if not isinstance(response, HtmlResponse):
             return
 

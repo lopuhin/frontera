@@ -1,5 +1,5 @@
 import hashlib
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 from zlib import crc32
 from struct import pack
 from binascii import hexlify

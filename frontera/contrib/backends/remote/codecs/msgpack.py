@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import six
 from msgpack import packb, unpackb
 
 from frontera.core.codec import BaseDecoder, BaseEncoder
 
 
+_basic_types = six.string_types + six.integer_types + (float, bool)
+
+
 def _prepare_request_message(request):
     def serialize(obj):
         """Recursively walk object's hierarchy."""
-        if isinstance(obj, (bool, int, long, float, basestring)):
+        if isinstance(obj, _basic_types):
             return obj
         elif isinstance(obj, dict):
             obj = obj.copy()
